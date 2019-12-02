@@ -2,13 +2,10 @@ from textblob import TextBlob
 from bs4 import BeautifulSoup
 import requests
 
+import sys
 
 
-#https://towardsdatascience.com/web-scraping-news-articles-in-python-9dd605799558
-
-
-def main():
-  URL = "https://www.npr.org/2019/12/01/783989343/as-impeachment-inquiry-moves-to-judiciary-committee-republicans-attack-the-proce"
+def main(URL="https://www.npr.org/2019/12/01/783989343/as-impeachment-inquiry-moves-to-judiciary-committee-republicans-attack-the-proce"):
   r = requests.get(URL)
   soup = BeautifulSoup(r.content, 'html5lib')
 
@@ -17,10 +14,12 @@ def main():
   for a in article:
     article_text += a.get_text()
 
-  print(article_text)
-
   blob = TextBlob(article_text)
-  for sentence in blob.sentences:
-    print(sentence.sentiment.polarity)
+  
+  sentences_sentiment = [i.sentiment.polarity for i in blob.sentences]
+  print(sum(sentences_sentiment)/len(sentences_sentiment))
 
-main()
+if len(sys.argv) > 1:
+  main(sys.argv[1])
+else:
+  main()
