@@ -12,4 +12,4 @@ python3 -m textblob.download_corpora
 ```
 
 ## How to use
-Populate files/ with whatever text files you want to analyze and then run `python3 main.py' and the output will be put in output/
+Populate files/ with whatever text files you want to analyze and then run `python3 main.py` and the output will be put in output/
