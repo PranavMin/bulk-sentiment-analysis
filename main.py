@@ -39,7 +39,6 @@ for fname in os.listdir(directory):
     indiv_csv_writer = csv.writer(indiv_out_csv)
     
     for sentence in blob.sentences:
-      print(sentence)
       indiv_csv_writer.writerow([sentence.sentiment.polarity, sentence])
     indiv_out_csv.close()
 
