@@ -1,34 +1,48 @@
-from textblob import TextBlob
-from bs4 import BeautifulSoup
-import requests
+from textblob import Blobber
+from textblob.sentiments import NaiveBayesAnalyzer
 
 import sys
+import os
+import csv
+
+tb = Blobber()
+
+# Create output folder for CSVs
+output_folder = 'output/'
+os.mkdir(output_folder)
+
+# Create CSV writer for overall data
+out_csv = open(output_folder + 'output_data.csv', 'w')
+csv_writer = csv.writer(out_csv)
+csv_writer.writerow(['filename', 'polarity', 'subjectivity'])
 
 
-def main(URL="https://www.npr.org/2019/12/01/783989343/as-impeachment-inquiry-moves-to-judiciary-committee-republicans-attack-the-proce"):
-  print(URL)
-  r = requests.get(URL)
-  soup = BeautifulSoup(r.content, 'html5lib')
 
-  article_text = ''
-  article = soup.findAll('p')
-  for a in article:
-    article_text += a.get_text()
-
-  blob = TextBlob(article_text)
-  
-  sentences_sentiment = [i.sentiment.polarity for i in blob.sentences]
-  print(sum(sentences_sentiment)/len(sentences_sentiment))
-
-
-if len(sys.argv) > 1:
-  if(sys.argv[1] == '-f'):
-    filename = sys.argv[2]
-    f = open(filename, 'r')
-    for line in f.readlines():
-      print(line)
-      main(URL=line)
-  else:
-    main(URL=sys.argv[1])
+if len(sys.argv) < 2:
+  directory = 'files/'
 else:
-  main()
+  directory = sys.argv[1]
+
+for fname in os.listdir(directory):
+  with open(directory + fname.strip(), 'r') as f:
+
+    # Clean up newlines and read contents to txt
+    txt = f.read().replace('\n', ' ')
+    blob = tb(txt)
+    
+    # Write overall sentiment to csv
+    sentiment = blob.sentiment
+    csv_writer.writerow([fname.strip(), sentiment.polarity, sentiment.subjectivity])
+    
+    # Write individual sentence sentiment to individual files
+    indiv_out_csv = open(output_folder + fname[:-3]+'csv', 'w')
+    indiv_csv_writer = csv.writer(indiv_out_csv)
+    
+    for sentence in blob.sentences:
+      print(sentence)
+      indiv_csv_writer.writerow([sentence.sentiment.polarity, sentence])
+    indiv_out_csv.close()
+
+    print(fname.strip(), sentiment)
+
+out_csv.close()
